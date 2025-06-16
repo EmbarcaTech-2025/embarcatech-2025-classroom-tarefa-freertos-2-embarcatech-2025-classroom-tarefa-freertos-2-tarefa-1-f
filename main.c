@@ -1,80 +1,122 @@
 #include <stdio.h>
 #include <string.h>
 #include "pico/stdlib.h"
-#include "hardware/i2c.h"
-
 #include "FreeRTOS.h"
 #include "task.h"
-#include "ssd1306.h"
-#include "ssd1306_i2c.h"
 
-// === Configurações do I2C e display ===
-#define I2C_PORT i2c1
-#define I2C_SDA 14
-#define I2C_SCL 15
-#define OLED_ADDR 0x3C
+// Configurações do teclado matricial 4x3
+#define LINHAS 4
+#define COLUNAS 3
 
-// === Tamanho da tela ===
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
+uint linhas[LINHAS] = {18, 16, 19, 17};  // GPIOs das linhas
+uint colunas[COLUNAS] = {4, 20, 9};     // GPIOs das colunas
 
-// === Buffer da senha ===
-#define MAX_DIGITOS 16
-char senha_digitada[MAX_DIGITOS + 1] = {0};
+char mapa_teclado[LINHAS][COLUNAS] = {
+    {'1', '2', '3'},
+    {'4', '5', '6'},
+    {'7', '8', '9'},
+    {'*', '0', '#'}
+};
 
-// === Estrutura do display ===
-ssd1306_t display;
-struct render_area frame_area;
+// GPIOs do LED RGB
+#define LED_VERMELHO 13
+// #define LED_VERDE    11
+// #define LED_AZUL     12
 
-// === Inicializa o display ===
-void init_display() {
-    i2c_init(I2C_PORT, 400 * 1000);
-    gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
-    gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
-    gpio_pull_up(I2C_SDA);
-    gpio_pull_up(I2C_SCL);
+// GPIO do buzzer
+#define BUZZER 21
 
-    ssd1306_init_bm(&display, SCREEN_WIDTH, SCREEN_HEIGHT, false, OLED_ADDR, I2C_PORT);
-    ssd1306_config(&display);  // ESSENCIAL: liga o display
+// Função para inicializar GPIOs
+void init_gpio() {
+    // Linhas como saída
+    for (int i = 0; i < LINHAS; i++) {
+        gpio_init(linhas[i]);
+        gpio_set_dir(linhas[i], GPIO_OUT);
+        gpio_put(linhas[i], 1); // Inicializa como HIGH
+    }
 
-    // Configura a área de renderização
-    frame_area.start_column = 0;
-    frame_area.end_column = ssd1306_width - 1;
-    frame_area.start_page = 0;
-    frame_area.end_page = ssd1306_n_pages - 1;
-    calculate_render_area_buffer_length(&frame_area);
+    // Colunas como entrada com pull-up
+    for (int i = 0; i < COLUNAS; i++) {
+        gpio_init(colunas[i]);
+        gpio_set_dir(colunas[i], GPIO_IN);
+        gpio_pull_up(colunas[i]);
+    }
 
-    // Mensagem inicial
-    memset(display.ram_buffer, 0, ssd1306_buffer_length);
-    ssd1306_draw_string(display.ram_buffer, 0, 0, "Digite a senha:");
-    render_on_display(display.ram_buffer, &frame_area);
+    // LED vermelho
+    gpio_init(LED_VERMELHO);
+    gpio_set_dir(LED_VERMELHO, GPIO_OUT);
+    gpio_put(LED_VERMELHO, 0);
+
+    // Buzzer
+    gpio_init(BUZZER);
+    gpio_set_dir(BUZZER, GPIO_OUT);
+    gpio_put(BUZZER, 0);
 }
 
-// === Tarefa: Atualiza o display ===
-void task_display(void *params) {
-    char *buffer = (char *)params;
+// Função de leitura de tecla (varredura do teclado)
+char ler_tecla() {
+    for (int l = 0; l < LINHAS; l++) {
+        // Desativa todas as linhas
+        for (int i = 0; i < LINHAS; i++) {
+            gpio_put(linhas[i], 1);
+        }
 
-    while (1) {
-        memset(display.ram_buffer, 0, ssd1306_buffer_length);
-        ssd1306_draw_string(display.ram_buffer, 0, 0, "Senha:");
-        ssd1306_draw_string(display.ram_buffer, 0, 16, buffer);
-        render_on_display(display.ram_buffer, &frame_area);
+        // Ativa a linha atual
+        gpio_put(linhas[l], 0);
+        sleep_us(3); // Estabiliza
 
-        vTaskDelay(pdMS_TO_TICKS(100));
+        // Varre colunas
+        for (int c = 0; c < COLUNAS; c++) {
+            if (gpio_get(colunas[c]) == 0) {
+                while (gpio_get(colunas[c]) == 0) {
+                    tight_loop_contents(); // Espera liberar tecla
+                }
+                return mapa_teclado[l][c];
+            }
+        }
+    }
+    return '\0'; // Nenhuma tecla pressionada
+}
+
+// Tarefa principal
+void task_teclado(void *params) {
+    char senha[32] = {0};
+    int pos = 0;
+
+    printf("Senha: ");
+    fflush(stdout);
+
+    while (true) {
+        char tecla = ler_tecla();
+        if (tecla != '\0') {
+            if (pos < sizeof(senha) - 1) {
+                senha[pos++] = tecla;
+                printf("%c", tecla);
+                fflush(stdout);
+            }
+
+            // Aciona LED e buzzer
+            gpio_put(LED_VERMELHO, 1);
+            gpio_put(BUZZER, 1);
+            vTaskDelay(pdMS_TO_TICKS(200));
+            gpio_put(LED_VERMELHO, 0);
+            gpio_put(BUZZER, 0);
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(50)); // Evita loop muito rápido
     }
 }
 
-// === main ===
 int main() {
     stdio_init_all();
-    init_display();
+    sleep_ms(10000); // Aguarda 10 segundos antes de iniciar (útil para abrir minicom)
 
-    // Inicia a task de exibir a senha
-    xTaskCreate(task_display, "Display", 512, senha_digitada, 1, NULL);
+    init_gpio();
 
-    // Inicia o scheduler
+    xTaskCreate(task_teclado, "Leitura Teclado", 1024, NULL, 1, NULL);
     vTaskStartScheduler();
 
-    // Nunca deve chegar aqui
-    while (1);
+    while (true) {
+        tight_loop_contents(); // Nunca deve chegar aqui
+    }
 }
