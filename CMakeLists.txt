@@ -37,6 +37,8 @@ pico_sdk_init()
 
 add_executable(embarcatech-tarefa-freertos-2
     main.c
+    include/ssd1306_i2c.c
+
 )
 
 target_include_directories(embarcatech-tarefa-freertos-2 PRIVATE
