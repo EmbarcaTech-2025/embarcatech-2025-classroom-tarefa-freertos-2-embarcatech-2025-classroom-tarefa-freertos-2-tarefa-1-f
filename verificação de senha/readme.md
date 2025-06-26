@@ -20,7 +20,7 @@ Este repositório corresponde à **segunda parte do projeto**: um cofre eletrôn
 * Display OLED SSD1306 (I2C)
 * 2 Botões (GPIO 5 e GPIO 6)
 * LED vermelho (GPIO 13)
-* LED verde (GPIO 12)
+* LED azul (GPIO 12)
 * Buzzer (GPIO 21)
 * Resistores de pull-up (internos do Pico ou externos)
 * Fios de conexão
@@ -32,7 +32,7 @@ Este repositório corresponde à **segunda parte do projeto**: um cofre eletrôn
 | GP5            | Botão A        | Pull-up interno |
 | GP6            | Botão B        | Pull-up interno |
 | GP13           | LED vermelho   | Cathode → GND   |
-| GP12           | LED verde      | Cathode → GND   |
+| GP12           | LED azul       | Cathode → GND   |
 | GP21 (PWM)     | Buzzer         | PWM             |
 | GP14 (I2C SDA) | SSD1306 SDA    | Pull-up interno |
 | GP15 (I2C SCL) | SSD1306 SCL    | Pull-up interno |
@@ -51,27 +51,7 @@ Este repositório corresponde à **segunda parte do projeto**: um cofre eletrôn
 
 ### Compilando
 
-1. Clone o repositório e submódulos:
 
-   ```bash
-   git clone --recursive <URL_DO_REPO>
-   ```
-2. Crie e acesse o diretório de build:
-
-   ```bash
-   mkdir build && cd build
-   ```
-3. Gere os arquivos de build com CMake:
-
-   ```bash
-   cmake .. -G Ninja
-   ```
-4. Compile e gere o `.uf2`:
-
-   ```bash
-   ninja
-   ```
-5. Copie o `cofreRTOS.uf2` para o Pico em modo bootloader.
 
 ## Estrutura
 
@@ -88,10 +68,10 @@ Este repositório corresponde à **segunda parte do projeto**: um cofre eletrôn
 
 ## Uso
 
-1. Pressione repetidamente os botões A e B para inserir sua senha (A = 1, B = 0).
+1. Pressione os botões A e B para inserir sua senha (A = 1, B = 0).
 2. Ao completar 4 dígitos, o sistema verifica automaticamente:
 
-   * **Correta** → LED verde aceso, mensagem “Acesso Liberado!” por 3 s.
+   * **Correta** → LED azul aceso, mensagem “Acesso Liberado!” por 3 s.
    * **Incorreta** → LED vermelho aceso, mensagem “Senha Incorreta!” por 3 s.
 3. Após exibir o resultado, retorna ao prompt “Digite a senha:”.
 
