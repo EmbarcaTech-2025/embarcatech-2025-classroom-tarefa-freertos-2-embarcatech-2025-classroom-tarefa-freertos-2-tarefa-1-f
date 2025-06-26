@@ -62,6 +62,7 @@ Conecte seu Pico em modo bootloader e copie `cofreRTOS.uf2` para ele.
 ## Demonstração em Vídeo
 
 [![Demonstração do Cofre](https://img.youtube.com/vi/NRRydgT8WxE/0.jpg)](https://youtu.be/NRRydgT8WxE)
+clique para ver o video no YouTube
 
 ## Estrutura
 
