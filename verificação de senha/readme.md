@@ -82,4 +82,4 @@ Este repositório corresponde à **segunda parte do projeto**: um cofre eletrôn
 
 ---
 
-Desenvolvido por \[Karen Beatrice] para BitDogLab / EmbarcaTech 2025.
+Desenvolvido por \Karen Beatrice para BitDogLab / EmbarcaTech 2025.
