@@ -6,7 +6,7 @@ Este repositório corresponde à **segunda parte do projeto**: um cofre eletrôn
 
 * Captura de código de 4 dígitos via botões (A = ‘1’, B = ‘0\`).
 * Verificação de senha configurada no código-fonte (por padrão `1111`).
-* Feedback visual via LED verde (acesso liberado) e vermelho (senha incorreta).
+* Feedback visual via LED azul (acesso liberado) e vermelho (senha incorreta).
 * Feedback sonoro via buzzer PWM.
 * Exibição de mensagens no OLED:
 
