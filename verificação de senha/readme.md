@@ -49,7 +49,9 @@ Este repositório corresponde à **segunda parte do projeto**: um cofre eletrôn
 * Ninja (opcional, mas recomendado)
 * FreeRTOS (incluído no repositório)
 
-### Compilando
+### Funcionamento em video
+
+https://www.youtube.com/shorts/NRRydgT8WxE
 
 
 
