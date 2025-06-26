@@ -4,15 +4,14 @@ Este repositório corresponde à **segunda parte do projeto**: um cofre eletrôn
 
 ## Funcionalidades
 
-* Captura de código de 4 dígitos via botões (A = ‘1’, B = ‘0\`).
+* Captura de código de 4 dígitos via botões (A = '1', B = '0').
 * Verificação de senha configurada no código-fonte (por padrão `1111`).
 * Feedback visual via LED azul (acesso liberado) e vermelho (senha incorreta).
 * Feedback sonoro via buzzer PWM.
 * Exibição de mensagens no OLED:
 
   * Prompt de digitação da senha.
-    
-  * Mensagens "Acesso Liberado!" e "Senha Incorreta!" centralizadas e exibidas por 3 segundos.
+  * Mensagens **Acesso Liberado!** e **Senha Incorreta!** centralizadas, exibidas por 3 segundos.
 
 ## Hardware Requerido
 
@@ -49,11 +48,20 @@ Este repositório corresponde à **segunda parte do projeto**: um cofre eletrôn
 * Ninja (opcional, mas recomendado)
 * FreeRTOS (incluído no repositório)
 
-### Funcionamento em video
+### Compilando
 
-https://www.youtube.com/shorts/NRRydgT8WxE
+```bash
+git clone --recursive <URL_DO_REPO>
+mkdir build && cd build
+cmake .. -G Ninja
+ninja
+```
 
+Conecte seu Pico em modo bootloader e copie `cofreRTOS.uf2` para ele.
 
+## Demonstração em Vídeo
+
+[![Demonstração do Cofre](https://img.youtube.com/vi/NRRydgT8WxE/0.jpg)](https://youtu.be/NRRydgT8WxE)
 
 ## Estrutura
 
@@ -84,4 +92,4 @@ https://www.youtube.com/shorts/NRRydgT8WxE
 
 ---
 
-Desenvolvido por \Karen Beatrice para BitDogLab / EmbarcaTech 2025.
+Desenvolvido por Karen Beatrice para BitDogLab / EmbarcaTech 2025.
