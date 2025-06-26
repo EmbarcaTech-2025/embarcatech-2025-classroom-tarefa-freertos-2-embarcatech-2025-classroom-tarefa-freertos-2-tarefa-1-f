@@ -11,7 +11,7 @@ Este repositório corresponde à **segunda parte do projeto**: um cofre eletrôn
 * Exibição de mensagens no OLED:
 
   * Prompt de digitação da senha.
-  * Código em construção.
+    
   * Mensagens "Acesso Liberado!" e "Senha Incorreta!" centralizadas e exibidas por 3 segundos.
 
 ## Hardware Requerido
